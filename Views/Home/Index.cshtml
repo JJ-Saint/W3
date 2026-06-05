@@ -1,0 +1,195 @@
+@model VetClinic.Models.ClinicViewModel
+@{
+    ViewData["Title"] = "Vet Clinic";
+}
+
+<div class="clinic-header">
+    <div class="header-inner">
+        <span class="header-cross">✚</span>
+        <div>
+            <h1>Vet Clinic</h1>
+            <p>Patient & Pet Management System — Week 5: Async / Await & Coding Conventions</p>
+        </div>
+    </div>
+</div>
+
+<div class="page-grid">
+
+    <div class="main-col">
+
+        <section class="panel">
+            <h2 class="panel-title"><span class="dot dot-violet"></span> Task.WhenAll — Parallel Patient Registration</h2>
+            <p class="panel-desc">All registrations run concurrently. Wall-clock time is far less than the sum of individual delays.</p>
+            <div class="async-batch">
+                @foreach (var task in Model.WhenAllDemo.Tasks)
+                {
+                    <div class="async-row">
+                        <span class="async-name">@task.TaskName</span>
+                        <span class="async-outcome">@task.Outcome</span>
+                        <span class="async-ms">@task.ElapsedMs ms</span>
+                    </div>
+                }
+                <div class="async-summary when-all">
+                    <span class="summary-label">WhenAll</span>
+                    @Model.WhenAllDemo.WhenAllSummary
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2 class="panel-title"><span class="dot dot-amber"></span> Task.WhenAny — First Pet Registered Wins</h2>
+            <p class="panel-desc">Task.WhenAny returns as soon as one task finishes — the rest continue in the background.</p>
+            <div class="async-batch">
+                @foreach (var task in Model.WhenAnyDemo.Tasks)
+                {
+                    <div class="async-row">
+                        <span class="async-name">@task.TaskName</span>
+                        <span class="async-outcome">@task.Outcome</span>
+                        <span class="async-ms @(Model.WhenAnyDemo.WhenAnySummary.Contains(task.TaskName) ? "ms-winner" : "")">
+                            @task.ElapsedMs ms
+                        </span>
+                    </div>
+                }
+                <div class="async-summary when-any">
+                    <span class="summary-label">WhenAny</span>
+                    @Model.WhenAnyDemo.WhenAnySummary
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2 class="panel-title"><span class="dot dot-teal"></span> Parallel Clinic Workflows</h2>
+            <p class="panel-desc">Per-patient: LoadMedicalHistoryAsync, ScheduleAppointmentAsync and SendNotificationAsync run in parallel.</p>
+            @foreach (var workflow in Model.WorkflowDemos)
+            {
+                <div class="workflow-card">
+                    <div class="workflow-title">@workflow.BatchName</div>
+                    @foreach (var t in workflow.Tasks)
+                    {
+                        <div class="workflow-task">
+                            <span class="wf-name">@t.TaskName</span>
+                            <span class="wf-outcome">@t.Outcome</span>
+                            <span class="wf-ms">@t.ElapsedMs ms</span>
+                        </div>
+                    }
+                    <div class="workflow-footer">@workflow.WhenAllSummary</div>
+                </div>
+            }
+        </section>
+
+        <section class="panel">
+            <h2 class="panel-title"><span class="dot dot-rose"></span> Exception Handling Demos</h2>
+            <p class="panel-desc">Each block below represents a try-catch-finally around a real domain operation.</p>
+            @foreach (var demo in Model.ExceptionDemos)
+            {
+                <div class="exception-card handled">
+                    <div class="exc-scenario">@demo.Scenario</div>
+                    <div class="exc-body">
+                        <div class="exc-block">
+                            <span class="block-label try-label">try</span>
+                            <span class="block-text">Operation attempted</span>
+                        </div>
+                        <div class="exc-block">
+                            <span class="block-label catch-label">catch</span>
+                            <div class="exc-type-msg">
+                                <span class="exc-type">@demo.ExceptionType</span>
+                                <span class="exc-msg">@demo.Message</span>
+                            </div>
+                        </div>
+                        <div class="exc-block">
+                            <span class="block-label finally-label">finally</span>
+                            <span class="block-text muted">@demo.FinallyBlock</span>
+                        </div>
+                    </div>
+                    @if (demo.WasHandled)
+                    {
+                        <span class="handled-badge">✓ Handled gracefully</span>
+                    }
+                </div>
+            }
+        </section>
+
+    </div>
+
+    <aside class="side-col">
+
+        <section class="panel">
+            <h2 class="panel-title"><span class="dot dot-teal"></span> Registered Patients</h2>
+            @foreach (var patient in Model.Patients)
+            {
+                <div class="patient-card">
+                    <div class="patient-header">
+                        <div>
+                            <div class="patient-name">@patient.Name</div>
+                            <div class="patient-meta">@patient.Age yrs &mdash; @patient.Address</div>
+                        </div>
+                        <div class="badge-row">
+                            <span class="badge-iface">IRegistrable</span>
+                            <span class="badge-iface badge-notif">INotifiable</span>
+                            <span class="badge-pets">@patient.Pets.Count pet(s)</span>
+                        </div>
+                    </div>
+                    <div class="register-tag">@patient.Register()</div>
+                    @if (patient.Pets.Any())
+                    {
+                        <div class="pets-list">
+                            @foreach (var pet in patient.Pets)
+                            {
+                                <div class="pet-row">
+                                    <span class="pet-species-icon">
+                                        @(pet.Species == "Dog" ? "🐕" : pet.Species == "Cat" ? "🐈" : "🐦")
+                                    </span>
+                                    <div class="pet-info">
+                                        <span class="pet-name">@pet.Name</span>
+                                        <span class="pet-detail">@pet.DisplayInfo()</span>
+                                    </div>
+                                    <div class="sound-chip">
+                                        <span class="sound-label">MakeSound()</span>
+                                        <span class="sound-value">@pet.MakeSound()</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+
+        <section class="panel">
+            <h2 class="panel-title"><span class="dot dot-sky"></span> Async Concepts Applied</h2>
+            <ul class="concepts-list">
+                <li><span class="concept-tag">async/await</span> Index(), all service methods</li>
+                <li><span class="concept-tag">Task.Delay</span> Simulated I/O latency</li>
+                <li><span class="concept-tag">Task.WhenAll</span> Patient registrations</li>
+                <li><span class="concept-tag">Task.WhenAny</span> First pet wins race</li>
+                <li><span class="concept-tag">Task.Run</span> Background thread launch</li>
+                <li><span class="concept-tag">No .Result/.Wait()</span> No thread blocking</li>
+                <li><span class="concept-tag">PascalCase</span> Classes & methods</li>
+                <li><span class="concept-tag">camelCase</span> Variables & params</li>
+                <li><span class="concept-tag">Async suffix</span> All async method names</li>
+            </ul>
+        </section>
+
+        <section class="panel">
+            <h2 class="panel-title"><span class="dot dot-green"></span> Notifications</h2>
+            @foreach (var notif in Model.Notifications)
+            {
+                <div class="notif-card">
+                    <div class="notif-patient">@notif.PatientName</div>
+                    <div class="notif-msg">@notif.Message</div>
+                </div>
+            }
+        </section>
+
+        <section class="panel">
+            <h2 class="panel-title"><span class="dot dot-muted"></span> Error Log (Recent)</h2>
+            <div class="log-block">
+                @foreach (var entry in Model.LogEntries)
+                {
+                    <div class="log-entry @(entry.Contains("ERROR") ? "log-error" : entry.Contains("WARN") ? "log-warn" : "log-info")">@entry</div>
+                }
+            </div>
+        </section>
+
+    </aside>
+</div>

@@ -1,0 +1,5 @@
+[2026-06-05 17:39:02] ERROR | FindPet | PetNotFoundException: Pet 'Firulais' was not found in the system.
+[2026-06-05 17:39:02] ERROR | AddPet | DuplicatePetException: A pet named 'Rex' is already registered to this patient.
+[2026-06-05 17:39:02] ERROR | Patient constructor | InvalidPatientAgeException: Patient age '-5' is not valid. Age must be between 0 and 120.
+[2026-06-05 17:39:02] ERROR | AverageAgeCalculation | DivideByZeroException: Attempted to divide by zero.
+[2026-06-05 17:39:02] INFO  | HomeController | Index (async) loaded
